@@ -1,0 +1,54 @@
+<HTML>
+<BODY>
+<font size=2>
+
+
+<H2>NAME</H2><PRE>
+       sacmerge
+
+
+
+</PRE>
+<H2>SYNOPSIS</H2><PRE>
+       sacmerge f1= f2=
+
+
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
+       Merges  two  Seismic  Analysis Code (SAC) binary formatted files into a
+       single SAC file.  Typically real-time seismic data are split into pack-
+       ets/segments  and  sent  through the Internet.  Packets may get lost or
+       arrive too late for posting causing drop outs.  If you  run  unpack.csh
+       on  data  ordered from IRIS and data are segmented into 2 or more files
+       then use this program to merge the files into a single  file  for  pro-
+       cessing in <B>SACDATA2INV(1)</B>.
+
+
+
+</PRE>
+<H2>REQUIRED PARAMETERS</H2><PRE>
+       <B>f1={string}</B>
+              the first sac file
+
+       <B>f2={string}</B>
+              the second sac file to be merged with the first
+
+
+
+</PRE>
+<H2>SEE ALSO</H2><PRE>
+       <B>sacdata2inv(1)</B>, <B>unpack.csh(1)</B>
+
+
+
+MTINV version 2.0                 20 Feb 2009                      <B>SACMERGE(1)</B>
+</PRE>
+<HR>
+<ADDRESS>
+"<a href='/cgi-bin/man.cgi'>get my <b>man!</b></a>"  .. in association with 
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+and <a href="http://www.corz.org/osx/">cor</a>
+</ADDRESS></font>
+</BODY>
+</HTML>

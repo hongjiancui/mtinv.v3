@@ -1,0 +1,230 @@
+<HTML>
+<BODY>
+<font size=2>
+
+
+<H2>NAME</H2><PRE>
+       mkgrnlib  - Makes the Green's function library for a single source sta-
+       tion pair
+
+
+</PRE>
+<H2>SYNOPSIS</H2><PRE>
+       mkgrnlib par= stnm= net=
+
+
+       or
+
+
+       mkgrnlib stnm= net= velmod= zrange= evla= evlo= dt= nt= fmax= t0= redv=
+       damp= kmax= eps= smin= modeldb= stadb= [no]verbose [no]dump
+
+
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
+       mkgrnlib  reads in a parameter file and/or command line arguments which
+       points to a station database file in rdseed format, a 1D velocity model
+       file  in  simple  ASCII column format, and several parameters including
+       source and receiver latitude and longitude, number of points,  sampling
+       rate, and source depth interval.  The program then computes the Green's
+       functions using the f-k reflectivity methodology of Zeng  and  Anderson
+       (1995).   The  output is a binary formatted file with the Green's func-
+       tions as a function of depth and the ten (ZSS, ZDS, ZDD, ZEP, RSS, RDS,
+       RDD, REP, TSS, TDS) fundamental faulting orientations.
+
+
+
+</PRE>
+<H2>REQUIRED PARAMETERS</H2><PRE>
+       <B>stnm={string}</B>
+              The station code name in the same capitalization and spelling as
+              typed in column one of the station database  file  [required  no
+              default].   The  path  to the station database for is defined by
+              the parameter <I>stadb</I>.  The station database  file  is  in  rdseed
+              format.   Try  <I>rdseed</I>  <I>-S</I>  <I>-f</I> <I>foobar.seed</I> to extract the station
+              file.  The station code has an eight character length limit.
+
+
+       <B>net={string}</B>
+              The network code name (see www.FDSN.org) in the same capitaliza-
+              tion  and spelling as typed in column 2 of the the station data-
+              base file [required no default]. The station database file is in
+              rdseed format.  Try <I>rdseed</I> <I>-S</I> <I>-f</I> <I>foobar.seed</I> to extract the sta-
+              tion file.  The network  code  has  an  eight  character  length
+              limit.
+
+
+       <B>velmod={string}</B>
+              The  file name of the velocity model without the .mod extension.
+              The path is  defined  by  <I>modeldb</I>  (see  below).   [required  no
+              default].
+
+
+       <B>zrange={floating</B>  <B>point</B> <B>number},{floating</B> <B>point</B> <B>number},{floating</B> <B>point</B>
+       <B>number}</B>
+              The  minimum, interval and maximum values of the centroid source
+              depth in (kilometers) for the Green's function library [required
+              no default].
+
+
+       <B>evla={floating</B> <B>point</B> <B>number}</B>
+              The  earthquake  latitude in decimal degrees format [required no
+              default].
+
+
+       <B>evlo={floating</B> <B>point</B> <B>number}</B>
+              The earthquake longitude in decimal degrees format [required  no
+              default].
+
+
+       <B>dt={floating</B> <B>point</B> <B>number}</B>
+              The  Green's  function  sampling  rate  in  seconds  per  sample
+              [required no default].
+
+
+       <B>nt={integer</B> <B>number}</B>
+              The number of points for the Green's functions.  Must be a power
+              of 2 (i.e., 64, 128, 256, 512, 1024, 2048(maximum)) [required no
+              default].
+
+
+       <B>eps={floating</B> <B>point</B> <B>number}</B>
+              Error tolerance.  Typically values of <I>eps</I>=0.001 to  <I>eps</I>=0.000001
+              are  adequate.   When <I>kmax</I> or <I>fmax</I> are not set properly mkgrnlib
+              will exit and ask to reset these values.  This  feature  can  be
+              controlled by <I>eps</I> and <I>smin</I>.  [required no default].
+
+
+       <B>smin={floating</B> <B>point</B> <B>number}</B>
+              Error    tolerance.    Typically   values   of   <I>smin</I>=0.001   to
+              <I>smin</I>=0.000001 are adequate.  When <I>kmax</I> or <I>fmax</I> are not set prop-
+              erly  mkgrnlib  will  exit  and ask to reset these values.  This
+              feature can  be  controlled  by  <I>eps</I>  and  <I>smin</I>.   [required  no
+              default].
+
+
+       <B>modeldb={string}</B>
+              The   path  to  the  model  database  directory.   [required  no
+              default].
+
+
+       <B>stadb={string}</B>
+              The path and file name to the station database.  The file is  in
+              rdseed format.  [required no default].
+
+
+
+</PRE>
+<H2>OPTIONAL PARAMETERS</H2><PRE>
+       <B>par={string}</B>
+              The  name  of  the parameter file [optional no default].  Allows
+              all or some of the parameters to be defined  in  a  file  rather
+              without loss of information.  This speeds calculation time  sig-
+              nificantly.   Typically  <I>fmax</I>  can  be  set  to 0.5 seconds when
+              inverting 100 to 10  sec  period  waves  [optional,  default  is
+              Nyquist frequency=1/(2*dt)].
+
+
+       <B>t0={floating</B> <B>point</B> <B>number}</B>
+              The  time  of the first sample in the Green's function, (<I>t0</I>=0 is
+              the earthquake origin time) [optional, default is <I>t0</I>=0.0]
+
+
+       <B>redv={floating</B> <B>point</B> <B>number}</B>
+              The reduction velocity in km/sec [optional, default is <I>redv</I>=-1.0
+              (no  reduction  velocity)].   To  avoid  wasting  time computing
+              Green's function for times before the first arrival particularly
+              when  the origin-time is used as the time of the first sample at
+              large distances.  The reduction velocity can move  the  time  of
+              the  first sample to a later time based on a horizontal apparent
+              velocity.
+
+
+       <B>damp={floating</B> <B>point</B> <B>number}</B>
+              The value damp is  for  the  exp(-damp*(pi/twin)*t)  exponential
+              function  for  dampening  the  rap  around  effects  in the time
+              domain.  When the length of the time history is too short,  then
+              the seismic surface waves may rap around to the beginning of the
+              Green's function  because  of  the  cyclic  nature  of  the  FFT
+              [optional, default off <I>damp</I>=1.0].
+
+
+       <B>kmax={integer</B> <B>number}</B>
+              Similar  to  fmax but for maximum spatial frequency (k=wave num-
+              ber).  Warning low fmax and kmax values may led  to  instability
+              and  inaccuracies  in  the  calculations.  [optional, default is
+              kmax=10000000].   Typically  kmax=20000  is  adequate  for  most
+              moment tensor inversions.
+
+
+       <B>verbose={integer=1</B> <B>or</B> <B>0}</B>
+              Verbosy  output  for  debugging  is <I>verbose</I>=1 and for no verbosy
+              output is <I>verbose</I>=0 [optional, default no verbose=0].
+
+
+       <B>dump={integer=1</B> <B>or</B> <B>0}</B>
+              Write out "Dump" the Green's functions as SAC  formatted  binary
+              files [optional, default no dump=0].
+
+
+
+</PRE>
+<H2>VELOCITY MODEL FILE FORMAT</H2><PRE>
+       ###
+       ### Western US model Ritsema and Lay 1995 JGR.
+       ###
+       ### thick Vp     Qp      Vs    Qs      rho
+       ###  (km) (km/s)        (km/s)         (g/cc)
+          4.00  4.52   500.00  2.61   250.00  2.39
+         28.00  6.21   500.00  3.59   250.00  2.76
+         20.00  7.73  1000.00  4.34   500.00  3.22
+        700.00  7.64  1000.00  4.29   500.00  3.19
+
+
+
+
+</PRE>
+<H2>Example entries in the station database file</H2><PRE>
+       GSC  CI  +35.301800 -116.805700  +954.0 "BHE BHN BHZ" "Goldstone, Cali-
+       fornia, USA" 1990,220,00:00:00 2599,365,23:59:59
+
+       BAR CI +32.680100 -116.672200  +496.0 "BHE BHN BHZ" "Barrett,  Califor-
+       nia, USA" 1992,275,00:00:00 2599,365,23:59:59
+
+
+
+</PRE>
+<H2>EXAMPLE</H2><PRE>
+       To calculate the Green's functions of an earthquake in Anza, California
+       (latitude=33.529, longitude=-116.573) at the UC Berkeley digital  seis-
+       mograph  station  Columbia  (CMB.BK)  within the central Sierra Nevada,
+       California, for depths of  2  to  22  km  in  2  km  increments  (i.e.,
+       2,4,6,8,10,12,14,16,18,20,and  22 km).  The Western U.S. velocity model
+       is used and the time histories will be computed up to 0.5 Hz, at a sam-
+       pling  rate of 0.2 samples per second and a total of 1024 points (204.8
+       seconds).
+
+       <B>mkgrnlib</B> evla=33.529 evlo=-116.573 zrange=2,2,22 velmod=wus \
+         dt=0.2 nt=1024 fmax=0.5 eps=0.0005 smin=0.0005 \
+         modeldb=/Users/ichinose/mtinv.v0.9/modeldb/ \
+         stadb=/Users/ichinose/mtinv.v0.9/stadb/station_database.txt
+
+
+
+</PRE>
+<H2>SEE ALSO</H2><PRE>
+       <B>glib2inv(1)</B>, <B>grnlib2sac(1)</B>, <B>sacdata2inv(1)</B>, <B>mtinv(1)</B> <B>rdseed(1)</B>
+
+
+
+MTINV version 2.0                 20 Feb 2009                      <B>MKGRNLIB(1)</B>
+</PRE>
+<HR>
+<ADDRESS>
+"<a href='/cgi-bin/man.cgi'>get my <b>man!</b></a>"  .. in association with 
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+and <a href="http://www.corz.org/osx/">cor</a>
+</ADDRESS></font>
+</BODY>
+</HTML>

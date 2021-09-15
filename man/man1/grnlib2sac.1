@@ -1,0 +1,118 @@
+.TH GRNLIB2SAC 1 "20 Feb 2009" "MTINV Version 2.0" "MTINV Toolkit V2.0"
+
+.SH NAME 
+grnlib2sac
+
+.SH SYNOPSIS
+grnlib2sac glib= z= [no]dumpgn [no]verbose tr= tt= [no]noise type=
+
+.TP
+.B if noise
+nMw= seed= 
+
+.TP 
+.B if type=0
+Mxx= Myy= Mzz= Mxy Mxz= Myz= Mo=
+
+.TP
+.B if type=1
+str= dip= rak= Mw=
+
+.TP 
+.B if type=2
+str= dip= rak= Mw= Piso=
+
+.SH DESCRIPTION
+Computes the ground displacements (z,r,t) given one type of source input, type=0
+is the tensor input, type=1 is the focal mechanism and seismic moment, or type=2
+which seperates the moment into isotropic and double couple.  The synthetic seismograms can
+be convolved with a 
+source time function (ramp rise time and boxcar time lengths).  The program reads the 
+Green's function library (as a function of depth) for a single source station pair.  The output are 
+SAC formatted binary files.  Use sac2xy.c to get the raw ASCII data.  The program is ideal for when
+quick forward calculations are needed to check recorded data.  Version 2 include a feature that
+adds noise relative to a moment magnitude.  
+
+.SH REQUIRED PARAMETERS
+
+.TP
+.B glib={string}
+The file name of the Green's function library ".glib" file. 
+
+.TP
+.B z={float}
+The source depth.  Must be a depth computed in the Green's function library ".glib" file.  See par file from mkgrnlib
+
+.SH OPTIONAL PARAMETERS
+
+.TP
+.B [no]dumpgrn
+write out only Green's functions for z= depth.
+
+.TP
+.B [no]verbose
+verbosy output for diagnosis
+
+.TP
+.B tr={float}
+The ramp rise time in seconds.  If tr=0 and tt>0 then the source time function is a boxcar.
+
+.TP
+.B tt={float}
+The boxcar rise time in seconds.  If tt=0 and tr>0 then the source time function is a triangle.
+
+.TP
+.B [no]noise 
+add white Gaussian noise
+
+.TP
+.B nMw={float}
+If noise then enter the level of the noise in units of Mw for freq band of interest
+
+.TP
+.B seed={integer}
+If noise then enter the random seed for noise
+
+.TP
+.B type={integer}
+Source Input Mode Type where type=0 Input Moment Tensor, type=1 Input Pure Deviatoric Source (Strike/Dip/Rake)
+and type=2 Input Pure Deviatoric source plus isotropic component
+
+.TP
+.B If type=0 Mxx={float} Myy={float} Mzz={float} Mxy={float} Mxz={float} Myz={float} 
+Normalized Moment Tensor Elements
+
+.TP
+.B If type=0 Mo={float}
+Total Seismic Moment in Dyne Cm.
+
+.TP
+.B If type=1 str={float} dip={float} rake={float}
+Fault Strike, dip, and rake in degrees.  Aki's convention.
+
+.TP
+.B If type=1 Mw={float}
+Scalar seismic moment magnitude.
+
+.TP
+.B If type=2 str={float} dip={float} rake={float}
+Fault Strike, dip, and rake in degrees.  Aki's convention.
+
+.TP
+.B If type=2 Mw= Piso=
+Total Moment Magnitude and The percent of the total moment allocated to isotropic
+
+.SH Example
+.br
+Compute synthetics for station CMB at 10 km depth with the following strike-slip focal mechanism.
+.br
+.br
+.TP 
+.B grnlib2sac glib=CMB.BK.wus.glib z=10 nonoise type=1 str=359 dip=89 rak=-179 Mw=5.1 tr=0 tt=0
+
+.SH "SEE ALSO"
+.IR mkgrnlib (1),
+.IR grnlib2sac (1),
+.IR sacdata2inv (1),
+.IR mtinv (1)
+.IR rdseed (1)

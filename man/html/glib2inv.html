@@ -1,0 +1,156 @@
+<HTML>
+<BODY>
+
+<H2>NAME</H2><PRE>
+       glib2inv
+</PRE>
+
+<H2>SYNOPSIS</H2><PRE>
+       glib2inv par= [no]verbose [no]dumpsac [no]dumpgrn [no]special
+</PRE>
+
+<H2>DESCRIPTION</H2><PRE>
+       Reads  the Green's function library (as a function of depth) for a sin-
+       gle source station pair and process  the  Green's  functions  (interpo-
+       late/decimate and bandpass filter) for moment tensor inversion.
+</PRE>
+
+<H2>REQUIRED PARAMETERS</H2><PRE>
+       <B>par={string}</B>
+              The  file  name  of the parameter file.  See format of this file
+              below (PARAMETER FILE FORMAT).
+</PRE>
+
+<H2>OPTIONAL PARAMETERS</H2>
+<PRE>
+       <B>[no]verbose</B>
+              Verbosy output for debugging is <I>verbose</I> and for no verbosy  out-
+              put is <I>noverbose</I> [optional, default verbose off].
+
+
+       <B>[no]dumpgrn</B>
+              Write  out  "Dump" the Green's functions as SAC formatted binary
+              files [optional, default nodumpgrn].
+
+
+       <B>[no]dumpsac</B>
+              Write out "Dump" the Green's functions as SAC  formatted  binary
+              files  [optional,  default  nodumpsac].   The  focal  mechanism,
+              depth, and moment is applied from the input  parameter  file  EV
+              line (see format below).
+
+
+
+</PRE>
+<H2>PARAMETER FILE FORMAT</H2><PRE>
+       <B>#</B>      A  '#' in the first column signifies that the following is a non
+              printing comment
+
+
+       <B>CM</B>     A 'CM ' in columns 1-3 marks the beginning of a  comment,  typi-
+              cally the region, area, city and country name for reference pur-
+              poses only.
+
+
+       <B>OT</B>     A 'OT ' in columns 1-3 is followed by the earthquake origin time
+              string   in  year/month/day,hour:minute:seconds  format,  (e.g.,
+              2005/06/12,15:41:46.000 ).  Origin time is required for  setting
+              the  origin  time  in  the  synthetics and shifting the observed
+              seismograms in time to improve the fit the synthetics  and  per-
+              cent double couple component.
+
+
+       <B>EV</B>     A  'EV ' in columns 1-3 is followed by six free formatted float-
+              ing point  values:   strike,  dip,  rake,  Mw,  event_longitude,
+              event_latitude,   and  event_depth.   Only  event_longitude  and
+              event_latitude need to be set for the correct calculation of the
+              source and receiver azimuth and distance.  Should be the same as
+              the <I>evla=</I> and <I>evlo=</I> values used to calculate the  Green's  func-
+              tion  library using "mkgrnlib".  Other values can be set to zero
+              and are only used to forward  calculate  synthetic  ground  dis-
+              placements when the dump option is set (dumpsac).
+
+
+       All  other  lines are for station and synthetic data processing parame-
+       ters.  There are 18 columns in the following order:
+
+              <B>sta,</B> <B>net,</B> <B>model,</B> <B>np,</B> <B>pas,</B> <B>lf,</B> <B>hf,</B> <B>nt,</B> <B>dt,</B> <B>tr,</B> <B>tt,</B> <B>grdmo,</B> <B>mulfac,</B>
+              <B>used,</B> <B>ts,</B> <B>Zmulfac,</B> <B>Rmulfac,</B> <B>Tmulfac.</B>
+
+              <B>sta=</B> station code (see stadb file).
+
+              <B>net=</B> network code (see stadb file).
+
+              <B>model=</B> velocity model name (without .mod extension)
+
+              <B>np=</B> number of poles (0,1,2,3,4,5,...) for  Butterworth  bandpass
+              filter
+
+              <B>pas=</B> number of passes (1 or 2) for Butterworth bandpass filter
+
+              <B>lf=</B> low frequency corner in Hz for Butterworth bandpass filter
+
+              <B>hf=</B> high frequency corner in Hz for Butterworth bandpass filter
+
+              <B>nt=</B> number of points (in power of 2)
+
+              <B>dt=</B> sampling rate in sec/sample
+
+              <B>tr=</B>  rise time or duration of ramp in trapezoid function in sec-
+              onds
+
+              <B>tt=</B> duration of boxcar portion of trapezoid function in  seconds
+              (tt=0 then triangle function of duration 2*tr)
+
+              <B>grdmo=</B>  Ground motion type is either 'd' for displacement or 'v'
+              for velocity (no default)
+
+              <B>mulfac=</B> Multiplcation factor applied to all components for  this
+              station.  Useful  for applying gain corrections easily.  Default
+              is 1.
+
+              <B>used=</B> Use this station for inversion 'y' or just make a  preduc-
+              tion 'n'
+
+              <B>ts=</B> Time shift for all components in seconds.  Negative is back-
+
+
+
+
+</PRE>
+<H2>EXAMPLE PARAMETER FILE (glib2inv.par)</H2><PRE>
+       #### Region Comment ####
+       CM Anza, California
+       #### Origin Time ####
+       #   year/mo/da,hr:mn:sec
+       OT 2005/06/12,15:41:46.00
+       #### Forward calculations ####
+       #    str dip  rak  Mw    evlo      evla     Z
+       EV   41  87    29  5.1  -116.573  33.529    14
+       #
+       #sta  net  model  np pas  lf   hf  nt  dt   tr  tt grdmo mulfac used ts
+       Zmulfac Rmulfac Tmulfac
+       BAR  CI  wus   3  2   0.03 0.10 256 0.25 0.0 0.0  d    1.0     y    0.0
+       1.0   1.0     1.0
+       GSC   CI   wus   3  2   0.02 0.08 256 0.4  0.0 0.0  d    1.0    y   0.0
+       1.0   1.0     1.0
+
+
+
+</PRE>
+<H2>Example</H2><PRE>
+       glib2inv par=glib2inv.par noverbose
+
+
+
+</PRE>
+<H2>SEE ALSO</H2><PRE>
+       <B>mkgrnlib(1)</B>, <B>grnlib2sac(1)</B>, <B>sacdata2inv(1)</B>, <B>mtinv(1)</B> <B>rdseed(1)</B>
+
+
+
+MTINV Version 2.0                 20 Feb 2009                      <B>GLIB2INV(1)</B>
+</PRE>
+<HR>
+</BODY>
+</HTML>

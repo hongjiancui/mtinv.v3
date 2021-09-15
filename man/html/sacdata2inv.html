@@ -1,0 +1,183 @@
+<HTML>
+<BODY>
+<font size=2>
+
+
+<H2>NAME</H2><PRE>
+       sacdata2inv  -  processes  and filters the SAC formatted data files for
+       moment tensor inversion by mtinv
+
+
+
+</PRE>
+<H2>SYNOPSIS</H2><PRE>
+       sacdata2inv par= path= respdir= [no]verbose [no]dumpsac
+
+
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
+       sacdata2inv takes input from both the command line  and  the  parameter
+       file  from  glib2inv  about  the  station information and SAC formatted
+       binary file locations and  generates  input  files  for  moment  tensor
+       inversion using "mtinv".  The directories of the SAC files and Sac Pole
+       and Zero response correction files are scanned automatically.  The data
+       files  are  processed, detrended, bandpass filtered, interpolated, win-
+       dowed, scaled to the correct units, tapered and rotated into the Verti-
+       cal, Radial and Transverse (Z,R,T) coordinate system.
+
+
+
+</PRE>
+<H2>REQUIRED PARAMETERS</H2><PRE>
+       <B>par={string}</B>
+              The  file  name  of the parameter file.  See format of this file
+              below (PARAMETER FILE FORMAT).
+
+
+       <B>path={string}</B>
+              The relative or absolute path to where the SAC files are stored.
+              Use  rdseed  -d  -p -f myrdseed.seed to extract SAC and SAC pole
+              zero files from a seed file.
+
+
+       <B>respdir={string}</B>
+              The relative or absolute path to where the SAC pole  zero  files
+              are  stored.   Use  rdseed -d -p -f myrdseed.seed to extract SAC
+              and SAC pole zero files from a seed file.
+
+
+
+</PRE>
+<H2>OPTIONAL PARAMETERS</H2><PRE>
+       <B>[no]verbose</B>
+              Verbosy output for debugging is <I>verbose</I> and for no verbosy  out-
+              put is <I>noverbose</I> [optional, default no verbose].
+
+
+       <B>[no]dumpsac</B>
+              Write  out  "Dump"  the  processed  data as SAC formatted binary
+              files [optional, default nodump].
+
+
+
+</PRE>
+<H2>PARAMETER FILE FORMAT</H2><PRE>
+       <B>same</B> <B>format</B> <B>as</B> <B>par</B> <B>file</B> <B>for</B> <B>GLIB2INV(1)</B>
+
+
+       <B>#</B>      A '#' in the first column signifies that the following is a  non
+              printing comment
+
+
+       <B>CM</B>     A  'CM  ' in columns 1-3 marks the beginning of a comment, typi-
+              cally the region, area, city and country name for reference pur-
+              poses only.
+
+
+       <B>OT</B>     A 'OT ' in columns 1-3 is followed by the earthquake origin time
+              string  in  year/month/day,hour:minute:seconds  format,   (e.g.,
+              2005/06/12,15:41:46.000  ).  Origin time is required for setting
+              the origin time in the  synthetics  and  shifting  the  observed
+              seismograms  in  time to improve the fit the synthetics and per-
+              cent double couple component.
+
+
+       <B>EV</B>     A 'EV ' in columns 1-3 is followed by six free formatted  float-
+              ing  point  values:   strike,  dip,  rake,  Mw, event_longitude,
+              event_latitude,  and  event_depth.   Only  event_longitude   and
+              event_latitude need to be set for the correct calculation of the
+              source and receiver azimuth and distance.  Should be the same as
+              the  <I>evla=</I>  and <I>evlo=</I> values used to calculate the Green's func-
+              tion library using "mkgrnlib".  Other values can be set to  zero
+              and  are  only  used  to forward calculate synthetic ground dis-
+              placements when the dump option is set (dumpsac).
+
+
+       All other lines are for station and synthetic data  processing  parame-
+       ters.  There are 18 columns in the following order:
+
+              <B>sta,</B> <B>net,</B> <B>model,</B> <B>np,</B> <B>pas,</B> <B>lf,</B> <B>hf,</B> <B>nt,</B> <B>dt,</B> <B>tr,</B> <B>tt,</B> <B>grdmo,</B> <B>mulfac,</B>
+              <B>used,</B> <B>ts,</B> <B>Zmulfac,</B> <B>Rmulfac,</B> <B>Tmulfac.</B>
+
+              <B>sta=</B> station code (see stadb file).
+
+              <B>net=</B> network code (see stadb file).
+
+              <B>model=</B> velocity model name (without .mod extension)
+
+              <B>np=</B>  number  of poles (0,1,2,3,4,5,...) for Butterworth bandpass
+              filter
+
+              <B>pas=</B> number of passes (1 or 2) for Butterworth bandpass filter
+
+              <B>lf=</B> low frequency corner in Hz for Butterworth bandpass filter
+
+              <B>hf=</B> high frequency corner in Hz for Butterworth bandpass filter
+
+              <B>nt=</B> number of points (in power of 2)
+
+              <B>dt=</B> sampling rate in sec/sample
+
+              <B>tr=</B> rise time or duration of ramp in trapezoid function in  sec-
+              onds
+
+
+              <B>used=</B>  Use this station for inversion 'y' or just make a preduc-
+              tion 'n'
+
+              <B>ts=</B> Time shift for all components in seconds.  Negative is back-
+              ward time shift in time and positive shifts are forward shift in
+              time.  Default is 0;
+
+              <B>Zmulfac=</B> Vertical component multplication factor
+
+              <B>Rmulfac=</B> Radial component multplication factor
+
+              <B>Tmulfac=</B> Transverse component multplication factor
+
+
+
+
+</PRE>
+<H2>EXAMPLE PARAMETER FILE (glib2inv.par)</H2><PRE>
+       #### Region Comment ####
+       CM Anza, California
+       #### Origin Time ####
+       #   year/mo/da,hr:mn:sec
+       OT 2005/06/12,15:41:46.00
+       #### Forward calculations ####
+       #    str dip  rak  Mw    evlo      evla     Z
+       EV   41  87    29  5.1  -116.573  33.529    14
+       #
+       BAR  CI  wus   3  2   0.03 0.10 256 0.25 0.0 0.0  d    1.0     y    0.0
+       1.0   1.0     1.0
+       GSC   CI   wus   3  2   0.02 0.08 256 0.4  0.0 0.0  d    1.0    y   0.0
+       1.0   1.0     1.0
+
+
+
+</PRE>
+<H2>Example C-Shell Script</H2><PRE>
+       #!/bin/csh
+       sacdata2inv  par=glib2inv.par  path=./IRIS   respdir=./Resp   noverbose
+       nodumpsac \
+
+
+
+</PRE>
+<H2>SEE ALSO</H2><PRE>
+       <B>glib2inv(1)</B>, <B>grnlib2sac(1)</B>, <B>mkgrnlib(1)</B>, <B>mtinv(1)</B>, <B>rdseed(1)</B>,
+
+
+
+MTINV version 2.0                 20 Feb 2009                   <B>SACDATA2INV(1)</B>
+</PRE>
+<HR>
+<ADDRESS>
+"<a href='/cgi-bin/man.cgi'>get my <b>man!</b></a>"  .. in association with 
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+and <a href="http://www.corz.org/osx/">cor</a>
+</ADDRESS></font>
+</BODY>
+</HTML>

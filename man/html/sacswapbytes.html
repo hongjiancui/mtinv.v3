@@ -1,0 +1,57 @@
+<HTML>
+<BODY>
+<font size=2>
+
+
+<H2>NAME</H2><PRE>
+       sacswapbytes
+
+
+
+</PRE>
+<H2>SYNOPSIS</H2><PRE>
+       sacswapbytes {sac binary files}
+
+
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
+       Motorola  and  IBM  processors  (CPU's) were designed to read and write
+       bits from left to right like humans but Intel decided  to  do  it  from
+       right  to  left (backwards).  This is called computer Endianess... big-
+       endian (Motorola/IBM) and little-endian (Intel).  Therefore files writ-
+       ten  from  one  type  of processor/computer will need to have its byte-
+       order byte-swapped in order for it to be readable on  another  type  of
+       computer.   This  includes Seismic Analysis Code (SAC) binary formatted
+       files.  This program performs an intelligent  assessment  of  the  file
+       type and converts if necessary.  NOTE... if you created sac files using
+       rdseed then those sac files inherit the native byte order of that  com-
+       puter.   SACSWAPBYTES is only necessary if those files were transferred
+       to another type of computer with different  architecture.    Also  note
+       that  SAC2000 performs this function automatically but beware that upon
+       writing the files over using SAC2000 it inherits the native byte-order.
+
+
+
+</PRE>
+<H2>REQUIRED PARAMETERS</H2><PRE>
+       none
+
+
+
+</PRE>
+<H2>SEE ALSO</H2><PRE>
+       <B>sacdata2inv(1)</B>, <B>knet2sac(1)</B>
+
+
+
+MTINV version 2.0                 20 Feb 2009                  <B>SACSWAPBYTES(1)</B>
+</PRE>
+<HR>
+<ADDRESS>
+"<a href='/cgi-bin/man.cgi'>get my <b>man!</b></a>"  .. in association with 
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+and <a href="http://www.corz.org/osx/">cor</a>
+</ADDRESS></font>
+</BODY>
+</HTML>

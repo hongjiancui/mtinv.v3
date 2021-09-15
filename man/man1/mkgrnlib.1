@@ -1,0 +1,199 @@
+.TH MKGRNLIB 1 "20 Feb 2009"  "MTINV version 2.0" "MTINV Toolkit V2.0"
+.SH NAME 
+mkgrnlib  \- Makes the Green's function library for a single source station pair
+.SH SYNOPSIS
+mkgrnlib par= stnm= net=
+.br
+ 
+.br
+
+or
+.br
+
+.br
+
+mkgrnlib stnm= net= velmod= zrange= evla= evlo= dt= nt= fmax= t0= redv= damp= kmax= eps= smin=
+modeldb= stadb= [no]verbose [no]dump
+
+.SH DESCRIPTION
+mkgrnlib reads in a parameter file and/or command line arguments which points to a station database file in rdseed format, a 1D velocity
+model file in simple ASCII column format, and several parameters including source and receiver
+latitude and longitude, number of points, sampling rate, and source depth interval.  The program then computes
+the Green's functions using the f-k reflectivity methodology of Zeng and Anderson (1995).  The output is a
+binary formatted file with the Green's functions as a function of depth and the ten (ZSS, ZDS, ZDD, ZEP, RSS, RDS, RDD, REP, TSS, TDS) 
+fundamental faulting orientations.  
+
+.SH REQUIRED PARAMETERS
+
+.TP
+.B stnm={string}
+The station code name in the same capitalization and spelling
+as typed in column one of the station database file [required no default].  The path to
+the station database for is defined by the parameter \fIstadb\fP.  The station
+database file is in rdseed format.  Try \fIrdseed -S -f foobar.seed\fP to extract the station file.  The station code has 
+an eight character length limit.
+
+.TP
+.B net={string}
+The network code name (see www.FDSN.org) in the same capitalization and spelling as
+typed in column 2 of the the station database file [required no default]. The station
+database file is in rdseed format.  Try \fIrdseed -S -f foobar.seed\fP to extract the station file.  The network code 
+has an eight character length limit.
+
+.TP
+.B velmod={string}
+The file name of the velocity model without the .mod extension.  The path is defined by \fImodeldb\fP (see below).
+[required no default].
+
+.TP
+.B zrange={floating point number},{floating point number},{floating point number}
+The minimum, interval and maximum values of the centroid source depth in (kilometers) for 
+the Green's function library [required no default].  
+
+.TP
+.B evla={floating point number}
+The earthquake latitude in decimal degrees format [required no default].
+
+.TP
+.B evlo={floating point number}
+The earthquake longitude in decimal degrees format [required no default].
+
+.TP
+.B dt={floating point number}
+The Green's function sampling rate in seconds per sample  [required no default].
+
+.TP
+.B nt={integer number}
+The number of points for the Green's functions.  Must be a power of 2 (i.e., 64, 128, 256, 512, 1024, 2048(maximum))
+[required no default].
+
+.TP
+.B eps={floating point number}
+Error tolerance.  Typically values of \fIeps\fP=0.001 to \fIeps\fP=0.000001 are adequate.  When \fIkmax\fP or \fIfmax\fP are not set 
+properly mkgrnlib will exit and ask to reset these values.  This feature can be controlled by \fIeps\fP and \fIsmin\fP.
+[required no default].
+
+.TP
+.B smin={floating point number}
+Error tolerance.  Typically values of \fIsmin\fP=0.001 to \fIsmin\fP=0.000001 are adequate.  When \fIkmax\fP or \fIfmax\fP are not set properly mkgrnlib will exit and ask to reset these values.  This feature can be controlled by \fIeps\fP and \fIsmin\fP.
+[required no default].
+
+.TP
+.B modeldb={string}
+The path to the model database directory.
+[required no default].
+
+.TP
+.B stadb={string}
+The path and file name to the station database.  The file is in rdseed format.
+[required no default].
+
+.SH OPTIONAL PARAMETERS
+
+.TP
+.B par={string}
+The name of the parameter file [optional no default].  Allows all or some of the 
+parameters to be defined in a file rather than
+on the command line.  This is ideal for static parameters, for example,
+\fImodeldb\fP and \fIstadb\fP, which may not change for each new run.
+
+.TP
+.B fmax={floating point number}
+The Green's function maximum frequency content.  The absolute maximum is the Nyquist frequency.  
+For moment tensor inversion, the
+Nyquist frequency is too high for fmax and can be lowered without loss of information.  This speeds calculation time
+significantly.  Typically \fIfmax\fP can be set to 0.5 seconds when inverting 100 to 10 sec period waves
+[optional, default is Nyquist frequency=1/(2*dt)].
+                                                                                                                                                 
+.TP
+.B t0={floating point number}
+The time of the first sample in the Green's function, (\fIt0\fP=0 is the earthquake origin time) 
+[optional, default is \fIt0\fP=0.0]
+                                                                                                                                                 
+.TP
+.B redv={floating point number}
+The reduction velocity in km/sec [optional, default is \fIredv\fP=-1.0 (no reduction velocity)].  To avoid
+wasting time computing Green's function for times before the first arrival particularly when the origin-time
+is used as the time of the first sample at large distances.  The reduction velocity can move the time of the
+first sample to a later time based on a horizontal apparent velocity.
+
+.TP
+.B damp={floating point number}
+The value damp is for the exp(-damp*(pi/twin)*t) exponential function for dampening the
+rap around effects in the time domain. 
+When the length of the time history is too short, then the seismic surface waves may
+rap around to the beginning of the Green's function
+because of the cyclic nature of the FFT [optional, default off \fIdamp\fP=1.0].
+                                                                                                                                                 
+.TP
+.B kmax={integer number}
+Similar to fmax but for maximum spatial frequency (k=wave number).  Warning low fmax and kmax values may led to instability and inaccuracies
+in the calculations.  [optional, default is kmax=10000000].  Typically kmax=20000 is adequate for most moment tensor inversions.
+                                                                                                                                                 
+.TP
+.B verbose={integer=1 or 0}
+Verbosy output for debugging is \fIverbose\fP=1 and for no verbosy output is \fIverbose\fP=0 [optional, default no verbose=0].
+
+.TP
+.B dump={integer=1 or 0}
+Write out "Dump" the Green's functions as SAC formatted binary files [optional, default no dump=0].
+
+.SH VELOCITY MODEL FILE FORMAT
+###
+.br
+### Western US model Ritsema and Lay 1995 JGR.
+.br
+###
+.br
+### thick Vp     Qp      Vs    Qs      rho
+.br
+###  (km) (km/s)        (km/s)         (g/cc)
+.br
+   4.00  4.52   500.00  2.61   250.00  2.39
+.br
+  28.00  6.21   500.00  3.59   250.00  2.76
+.br
+  20.00  7.73  1000.00  4.34   500.00  3.22
+.br
+ 700.00  7.64  1000.00  4.29   500.00  3.19
+.br
+.sp
+
+.SH Example entries in the station database file
+GSC CI +35.301800 -116.805700  +954.0 "BHE BHN BHZ" "Goldstone, California, USA" 1990,220,00:00:00 2599,365,23:59:59
+.br
+.sp
+BAR CI +32.680100 -116.672200  +496.0 "BHE BHN BHZ" "Barrett, California, USA" 1992,275,00:00:00 2599,365,23:59:59
+.br
+
+.SH EXAMPLE
+To calculate the Green's functions of an earthquake in Anza, California (latitude=33.529, longitude=-116.573) 
+at the UC Berkeley digital seismograph 
+station Columbia (CMB.BK) within the central Sierra Nevada, California,
+for depths of 2 to 22 km in 2 km increments (i.e., 2,4,6,8,10,12,14,16,18,20,and 22 km).  
+The Western U.S. velocity model is used and the time histories will be computed up to 0.5 Hz,
+at a sampling rate of 0.2 samples per second and a total of 1024 points (204.8 seconds).  
+.br
+.sp
+\fBmkgrnlib\fP
+evla=33.529 
+evlo=-116.573 
+zrange=2,2,22 
+velmod=wus \\
+.br
+  dt=0.2
+nt=1024
+fmax=0.5
+eps=0.0005
+smin=0.0005 \\
+.br
+  modeldb=/Users/ichinose/mtinv.v0.9/modeldb/ \\
+.br
+  stadb=/Users/ichinose/mtinv.v0.9/stadb/station_database.txt
+
+.SH "SEE ALSO"
+.IR glib2inv (1),
+.IR grnlib2sac (1),
+.IR sacdata2inv (1),
+.IR mtinv (1)
+.IR rdseed (1)

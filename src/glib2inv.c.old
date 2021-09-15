@@ -1,0 +1,377 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+#include "../include/nrutil.h"
+#include "../include/mt.h"
+
+char progname[128];
+
+int main( int ac, char **av )
+{
+/************************/
+/*** event info stuff ***/
+/************************/
+	EventInfo *ev;
+	EventInfo *glib2inv_get_input_parameters( char *, EventInfo *, int *, int );
+	int ista, nsta;
+	char evinfo_filename[256];
+
+/********************/
+/*** Greens stuff ***/
+/********************/
+        Greens grn; 
+	FILE *fpin, *fpout;
+	int ig, ng=10, MAX_ARRAY_SIZE=4096;
+	float **garray;
+	int nz, iz;
+	float *z;
+	int old_nt;
+	char taper_type[3];
+        float taper_frac_width;
+
+/*******************/
+/*** local stuff ***/
+/*******************/
+	int verbose=0;
+	int idump_grnsfunc=0;
+	int idump_sac;
+	int DIFFoperator;
+	int special_load_option = 0;
+	int mtdegfree = 5;
+
+/*** function prototypes ***/
+
+	void special_load( char *, char *, Greens * );
+	void differentiate( float *, int, float, int, int );
+	void source_time_function( float *, int, float, float, float );
+	void iir_filter( float *, int, char *, float, float, 
+		int, char *, float, float, float, int );
+
+/*** Ichinose Feb2010 ***/
+/*** substitute interpolate_fft with interpolate_wiggins ***/
+/*** did not work, went back to original ***/
+        void interpolate_fft( float *, int, float, int *, float );
+        void interpolate_wiggins2( float *, int, float, float, int, float, int );
+
+	void grn2disp( Greens *, EventInfo *, int, int );
+	void wrtgrn2sac( Greens *, int );
+	void split2grn( Greens *, float ** );
+	void array2grn( float **, Greens * );
+	void envelope( float *, int, float );
+
+/*** misc ***/
+
+	int setpar(int,char **);
+        int mstpar(), getpar();
+        void endpar();
+	void Usage_Print();
+	char pathname[128];
+	char *shorten_path( char *pathname, char *filename );
+
+/*****************************************************/
+/*** get the input parameters foreach each station ***/
+/*****************************************************/
+	strcpy( pathname, av[0] );
+	shorten_path( pathname, progname );
+
+	if( verbose )
+	{
+	  fprintf( stdout, "%s: STDOUT: Version=%s ReleaseDate=%s exec full path=%s\n",
+		progname, Version_Label, Version_Date, pathname );
+	}
+
+	fprintf( stderr, "%s: STDERR: Version=%s ReleaseDate=%s exec full path=%s\n",
+                progname, Version_Label, Version_Date, pathname );
+
+/*****************************************************/
+/*** usage                                         ***/
+/*****************************************************/
+	if( ac <= 1 ) Usage_Print();
+
+/*******************************************************/
+/*** allocate memory for greens function demultiplex ***/
+/*******************************************************/
+	garray = (float **)malloc( ng * sizeof(float *) );
+	for( ig=0; ig<ng; ig++ )
+	{
+		garray[ig] = (float *)malloc(MAX_ARRAY_SIZE*sizeof(float));
+	}
+
+/******************************************************************************/
+/*** command line arguments                                                 ***/
+/******************************************************************************/
+	setpar(ac,av);
+	mstpar("par", "s", &evinfo_filename );
+	getpar("verbose", "b", &verbose );
+	getpar("dumpgrn", "b", &idump_grnsfunc );
+	getpar("dumpsac", "b", &idump_sac );
+	getpar("special", "b", &special_load_option );
+	endpar();
+
+	if( special_load_option )
+	{
+	  fprintf(stderr, 
+		"%s: you've selected a special load option to load in custom GF's\n",
+		progname );
+	}
+
+	ev  = (EventInfo *)malloc(sizeof(EventInfo));
+	ev  = (EventInfo *)
+	  glib2inv_get_input_parameters( evinfo_filename, ev, &nsta, verbose );
+
+	if( verbose )
+	{
+		printf( "%s: nsta=%d\n", progname, nsta );
+		for( ista=0; ista<nsta; ista++ )
+		{
+	  	  printf("%s: ista=%03d data=%s glib=%s ginv=%s npole=%d npass=%d lf=%g ",
+		    progname, ista, ev[ista].data_filename, ev[ista].glib_filename, 
+		    ev[ista].ginv_filename, ev[ista].npole, ev[ista].npass, ev[ista].lf );
+		  printf("hf=%g nt=%d dt=%g tr=%g tt=%g velordisp=%d mulfac=%g iused=%d\n",
+             	    ev[ista].hf, ev[ista].nt, ev[ista].dt, ev[ista].tr, ev[ista].tt,
+             	    ev[ista].grd_mo_type, ev[ista].mul_factor, ev[ista].iused );
+		}
+		for( ista=0; ista<nsta; ista++ )
+		{
+			printf("%s: \t", progname );
+			WriteMyTime2STDOUT( &(ev[ista].ot) );
+		}
+	}
+
+/******************************************************************************/
+/*** SPECIAL LOAD OPTION wil load in a set of precomputed Green's functions ***/
+/*** and write them out in a new readble format so it can be processed below***/
+/******************************************************************************/
+
+	if( special_load_option )
+	{
+		for( ista=0; ista<nsta; ista++ )
+		{
+			printf("%s: Loading special Green's functions for %s.%s\n",
+				progname, ev[ista].stnm, ev[ista].net );
+			special_load( ev[ista].stnm, ev[ista].net, &grn );
+			strcpy( grn.filename, ev[ista].glib_filename );
+			strcpy( grn.v.modfile, ev[ista].modfile );
+				
+			fpout = fopen( ev[ista].glib_filename, "wb" );
+			nz = 1;
+			fwrite( &nz, sizeof(int), 1, fpout );
+			fwrite( &z[0], nz*sizeof(float), 1, fpout );
+			fwrite( &grn, sizeof(Greens), 1, fpout );
+			fclose(fpout);
+			free(z);
+		}
+	}
+
+/******************************************************************************/
+/*** loop over stations ***/
+/******************************************************************************/
+
+	for( ista=0; ista<nsta; ista++ )
+	{
+		if( (fpout = fopen( ev[ista].ginv_filename, "wb" )) == NULL )
+		{
+			fprintf(stderr,"%s: Fatal Error, cannot open file %s\n",
+				progname, ev[ista].ginv_filename );
+			exit(-1);
+		}
+
+		if( (fpin = fopen( ev[ista].glib_filename, "rb" ) ) == NULL )
+		{
+			fprintf(stderr,"%s: Fatal Error, cannot open file %s\n", 
+				progname, ev[ista].glib_filename );
+			exit(-1);
+		}
+
+/******************************************************************************/
+/*** get the depth range info from glib file and write it into the ginv file ***/
+/******************************************************************************/
+		fread(&nz,sizeof(int),1,fpin);
+		fwrite(&nz,sizeof(int),1,fpout);
+		z = malloc(nz*sizeof(*z));
+		fread(&z[0],nz*sizeof(float),1,fpin);
+		fwrite(&z[0],nz*sizeof(float),1,fpout);
+
+	/**********************************************************/
+	/*** loop over depth and read in the Green's functions ***/
+	/**********************************************************/
+		for( iz=0; iz<nz; iz++ )
+		{
+			fread(&grn,sizeof(Greens),1,fpin);
+			if( verbose )
+			{
+			  printf("%s: iz=%d z=%g rdist=%g az=%g ",
+			    progname, iz, z[iz], grn.rdist, grn.az );
+			  printf(" evdp=%g t0=%g dt=%g nt=%d %s\n",
+			    grn.evdp, grn.t0, grn.dt, grn.nt, grn.filename );
+			}
+
+			if( ev[ista].nt > grn.nt )
+			{
+			  printf("%s: ERROR nt=%d of othe data greater than nt=%d ",
+			    progname, ev[ista].nt, grn.nt );
+			  printf("of the Green's functions for ista=%d sta=%s.%s\n",
+			    ista, ev[ista].stnm, ev[ista].net );
+			  exit(-1);
+			}
+
+			if( ev[ista].dt < grn.dt )
+			{
+			  printf("%s: ERROR dt=%g of the data is less than dt=%g ",
+			    progname, ev[ista].dt, grn.dt );
+			  printf("of the Green's function for ista=%d sta=%s.%s\n",
+			    ista, ev[ista].stnm, ev[ista].net );
+			}
+
+	/**********************************************************/
+	/*** demultiplex from structure to array of 10 greens functions ***/
+	/**********************************************************/
+			split2grn( &grn, garray );
+
+	/**********************************************************/
+	/*** loop over the 10 fundamental faulting orientations ***/
+	/**********************************************************/
+
+			for( ig = 0 ; ig < ng; ig++ )
+			{
+
+			/**********************************************************/
+			/*** ground motion type -> differentiate for velocity   ***/
+			/*** leave alone for velocity                           ***/
+			/**********************************************************/
+
+				if( ev[ista].grd_mo_type == VELOCITY )
+				{
+				  DIFFoperator = 3;
+				  differentiate( 
+					garray[ig], grn.nt, grn.dt, 
+					DIFFoperator, verbose );
+				}
+
+			/***********************************/
+			/*** convolve trapazoid function ***/
+			/***********************************/
+
+				source_time_function( garray[ig], grn.nt, 
+					grn.dt, ev[ista].tr, ev[ista].tt );
+
+			/****************************************/
+			/*** bandpass filter greens functions ***/
+			/****************************************/
+
+				iir_filter( garray[ig], grn.nt, "BU",
+                                        ev[ista].trbndw, ev[ista].a,
+                                        ev[ista].npole, "BP", ev[ista].lf,
+                                        ev[ista].hf, grn.dt, ev[ista].npass );
+
+			/*****************************************************/
+			/*** interpolate greens functions to new nt and dt ***/
+			/*****************************************************/
+
+				interpolate_fft( garray[ig], grn.nt, 
+					grn.dt, &old_nt, ev[ista].dt );
+			
+			/*******************************************/
+			/*** taper with the new parameters       ***/
+			/*** do not need to taper the synthetics ***/
+			/*******************************************/
+			/****
+				strcpy( taper_type, "h\0" );
+				taper_frac_width = 0.40;
+				if( ev[ista].dt < 0.85 ) taper_frac_width = 0.25;
+				if( ev[ista].dt < 0.50 ) taper_frac_width = 0.10;
+				taper_frac_width = 0.05;
+				taper( garray[ig], ev[ista].nt, 
+					taper_type, taper_frac_width );
+			****/
+
+			/*******************************************************************/
+			/*** compute envelope function of the greens function synthetics ***/
+			/*******************************************************************/
+
+				if( ev[ista].ienvelope == 1 )
+				{
+					if(verbose) 
+					  fprintf( stdout, "%s: ista = %d computing envelope \n", progname, ista );
+
+					envelope( garray[ig], ev[ista].nt, ev[ista].dt );
+				}
+
+			} /*** done ig loop over ng=10 ***/
+
+		/***********************************************************/
+		/*** reset nt and delta from interpolation or decimation ***/
+		/***********************************************************/
+			grn.nt = ev[ista].nt;
+			grn.dt = ev[ista].dt;
+
+			if( verbose )
+			{
+			  printf(
+			    "%s: ista=%d(%s) iz=%d(%g)km nt=%d dt=%g writing file=%s\n", 
+				progname,
+				ista, 
+				grn.stnm, 
+				iz, z[iz], 
+				grn.nt, grn.dt, 
+				ev[ista].ginv_filename );
+			}
+
+		/********************************************/
+		/*** convert back from array to structure ***/
+		/********************************************/
+			array2grn( garray, &grn );
+
+		/********************************************************/
+		/*** write out a new glib file for the inversion code ***/
+		/********************************************************/
+			fwrite(&grn,sizeof(Greens),1,fpout);
+
+		/**************************************************/
+		/*** write out greens functions as seperate sac ***/
+		/***	files for inspection                    ***/
+		/**************************************************/	
+			if( idump_grnsfunc ) 
+				wrtgrn2sac( &grn, ista );
+
+		/*******************************************************/
+		/*** if event tag present in input file then compute ***/
+		/***  displacement synthetics                        ***/
+		/*******************************************************/
+			if(	( ev[ista].my_z == z[iz] ) &&
+				( ev[ista].str  != -999  ) && 
+				( ev[ista].dip  != -999  ) &&
+				( ev[ista].rak  != -999  ) &&
+				( ev[ista].Mw   != -999  )  )
+			{
+				if( idump_sac ) 
+				  grn2disp( &grn, &ev[ista], verbose, mtdegfree );
+			}
+		}
+		fclose(fpin);
+		fclose(fpout);
+		free(z);
+	}
+	printf("%s: Finished Program. Bye-Bye! \n\n\n", progname );
+	exit(0);
+}
+
+void Usage_Print()
+{
+	fprintf(stderr, 
+	  "\n USAGE: %s par= [no]verbose [no]dumpsac [no]dumpgrn [no]special\n",
+	  progname );
+
+	fprintf(stderr, "\n" );
+	fprintf(stderr, "\t REQUIRED PARAMETERS: \n" );
+	fprintf(stderr, "\t par=glib2inv.par    station parameter file\n" );
+	fprintf(stderr, "\n" );
+
+	fprintf(stderr, "\t OPTIONAL PARAMETERS: \n" );
+	fprintf(stderr, "\t [no]verbose         be verbosy DEFAULT is off\n" );
+	fprintf(stderr, "\t [no]dumpsac         write out the data as SAC formatted files DEFAULT is off\n" );
+	fprintf(stderr, "\t [no]special         load the Green's functions as SAC formatted files DEFAULT is off\n" );
+	fprintf(stderr, "\n" );
+}

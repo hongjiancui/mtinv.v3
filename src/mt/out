@@ -1,0 +1,91 @@
+./mtdecomp: Mo=1.000000e+23 str=45 dip=45 rak=90 pdc=0 clvd_type=+v pclvd=0 piso=1
+isotropic
+	 1.00e+23 0.00e+00 0.00e+00
+	 0.00e+00 1.00e+23 0.00e+00
+	 0.00e+00 0.00e+00 1.00e+23
+
+double-couple
+	 -0.00e+00 0.00e+00 0.00e+00
+	 0.00e+00 -0.00e+00 0.00e+00
+	 0.00e+00 0.00e+00 0.00e+00
+
+compensated linear vector dipole
+	 -0.00e+00 0.00e+00 0.00e+00
+	 0.00e+00 -0.00e+00 0.00e+00
+	 0.00e+00 0.00e+00 0.00e+00
+
+full - moment tensor
+	 1.00e+23 0.00e+00 0.00e+00
+	 0.00e+00 1.00e+23 0.00e+00
+	 0.00e+00 0.00e+00 1.00e+23
+
+./mtdecomp: calling set_moment_tensor: 
+./mtdecomp: calling normalize_moment_tensor: 
+normalize_moment_tensor(): Normalized Moment Tensor:
+normalize_moment_tensor: 	  1.00  0.00  0.00
+normalize_moment_tensor: 	  0.00  1.00  0.00
+normalize_moment_tensor: 	  0.00  0.00  1.00
+normalize_moment_tensor: 	 Mo=1.22e+23 Mw= 4.66 Mo= 1.22 X 10^23 Dyne cm
+
+./mtdecomp: calling mt2eig: 
+./mtdecomp: calling eig2iso: 
+eig2iso: Full moment tensor: 
+eig2iso: val=  1.00 vec=  1.00   0.00   0.00 
+eig2iso: val=  1.00 vec=  0.00   1.00   0.00 
+eig2iso: val=  1.00 vec=  0.00   0.00   1.00 
+eig2iso: FULL sorted eigenvalues = 1 1 1
+eig2iso: raw isotropic component = 1
+eig2iso: M xx=0 yy=0 xy=0 xz=0 yz=0 zz=0
+eig2iso: calling set_moment_tensor() 
+./mtdecomp: calling set_moment_tensor: 
+eig2iso: calling calc_deviatoric_moment() 
+./mtdecomp: calc_deviatoric_moment: Mo=1.22e+23 Mw= 4.66 Mo= 1.22X10^23 Dyne cm
+
+eig2iso: calling normalize_moment_tensor() 
+./mtdecomp: calling normalize_moment_tensor: 
+normalize_moment_tensor(): Normalized Moment Tensor:
+normalize_moment_tensor: 	 -1.00  0.00  0.00
+normalize_moment_tensor: 	  0.00 -1.00  0.00
+normalize_moment_tensor: 	  0.00  0.00 -1.00
+normalize_moment_tensor: 	 Mo=1.22e+23 Mw= 4.66 Mo= 1.22 X 10^23 Dyne cm
+
+eig2iso: Deviatoric Moment Mdev=1.22474e+23
+eig2iso: Isotropic Moment Miso=1e+23
+eig2iso: Total Moment=2.22474e+23
+eig2iso: Total Mw=4.83485
+eig2iso: abcassa=2.22474 expon=23
+eig2iso: deviatoric moment tensor 
+eig2iso: 	 val=  0.00 vec=  1.00   0.00   0.00 
+eig2iso: 	 val=  0.00 vec=  0.00   1.00   0.00 
+eig2iso: 	 val=  0.00 vec=  0.00   0.00   1.00 
+eig2iso: deviatoric sorted eigenvalues: 0 0 0
+eig2iso: Absolute Value Eigenvalue Sorted : E1>E2>E3 
+eig2iso: |Eigval|	 0 0 0
+eig2iso: signs 	 1 1 1
+mtinv_subs.c: eig2iso(): Dev eigen values, in ascending order w.r.t their abs values:    0.0000    0.0000    0.0000
+./mtdecomp: eig2iso: iz=0 k=1.000 epsilon=  nan T=  nan Mdev=1.22474e+23 F-factor=1.22474 Mdc=nan Mclvd=nan Miso=1e+23 Mtotal=nan Mo=2.22474e+23
+eig2iso: Explosion  Deviatoric=55.1 Iso=44.9 CLVD= nan PDC= nan
+
+./mtdecomp: calling Eig2MajorDC
+Eig2MajorDC(): iz=0 Major Double Couple:
+Eig2MajorDC: 	 val= -0.00 vec= 0.00  1.00  0.00 
+Eig2MajorDC: 	 val=  0.00 vec= 0.00  0.00  1.00 
+Eig2MajorDC: 	 val=  0.00 vec= 1.00  0.00  0.00 
+Eig2MajorDC:	 T-axis trend=  0 pl=  0 Ev=  0.00
+Eig2MajorDC:	 P-axis trend= 45 pl=  0 Ev= -0.00
+Eig2MajorDC:	 B-axis trend=  0 pl=  0 Ev=  0.00
+Eig2MajorDC:	 NP1: stk=293 dip= 90 rak=  0
+Eig2MajorDC:	 NP2: stk=203 dip= 90 rak=-180
+
+./mtdecomp: calling Eig2MinorDC
+Eig2MinorDC(): Minor Double Couple:
+Eig2MinorDC:	 val=  0.00 vec= 1.000  0.000  0.000 
+Eig2MinorDC:	 val= -0.00 vec= 0.000  1.000  0.000 
+Eig2MinorDC:	 val=  0.00 vec= 0.000  0.000  1.000 
+Eig2MinorDC:	 T-axis trend=  0 pl=  0 Ev=  0.00
+Eig2MinorDC:	 P-axis trend= 45 pl=  0 Ev= -0.00
+Eig2MinorDC:	 B-axis trend=  0 pl=  0 Ev=  0.00
+Eig2MinorDC:	 NP1: stk=293 dip= 90 rak=  0
+Eig2MinorDC:	 NP2: stk=203 dip= 90 rak=-180
+
+eig2lune_4mtinv: longitude=nan latitude=90.00 eig0=1 eig1=1 eig2=1

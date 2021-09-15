@@ -1,0 +1,266 @@
+<HTML>
+<BODY>
+<font size=2>
+
+
+
+<H2>NAME</H2><PRE>
+       mtinv - moment tensor inversion
+
+
+
+</PRE>
+<H2>SYNOPSIS</H2><PRE>
+       mtinv    par=   mtdegfree=(1,5,6)   [no]verbose   [no]dumpsac   output-
+       path=[./plotmech] [no]fwd [no]gmtmap ts0= fixz= [no]test_mode  [no]norm
+       [no]shift ctol= FixISOZ= [no]WgtCovarResid
+
+
+
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
+       mtinv  reads  the  same  input file used by glib2inv and sacdata2inv to
+       generate processed and filtered data and Green's function  input  files
+       and  performs  an  inversion for the 5 or 6 moment tensor elements in a
+       least squares sense (by Singular Value Decomposition).  The response or
+       fitness of percent double couple and variance reduction are checked for
+       each source depth and an ASCII formatted E-mail file is generated  with
+       the  best  fit.   A postscript plot is also generated with the waveform
+       fit.  Typically sacdata2inv and mtinv  can  be  run  inside  a  C-shell
+       script  looped  over  origin time values to estimate the optimal origin
+       time and centroid depth.
+
+
+
+</PRE>
+<H2>REQUIRED PARAMETERS</H2><PRE>
+       <B>par={string}</B>
+              The file name of the parameter file.  See format  of  this  file
+              below (PARAMETER FILE FORMAT).
+
+
+       <B>mtdegfree={integer=1,</B> <B>5</B> <B>or</B> <B>6}</B>
+              The  number  of  degrees  of  freedom for the moment tensor.  If
+              mtdegfree=5 then Mzz is equal to -(Mxx+Myy)  and  the  trace  of
+              (Mij)  is  assume  zero.  The isotropic component is also assume
+              zero.  When mtdegfree=1  the  moment  tensor  solution  is  con-
+              strained  to be only Misotropic=Mxx=Myy=Mzz while the off diago-
+              nal elements are Mxy=Mxz=Myz=0.  When mtdegfree=6  the  solution
+              includes all 6 unqiue elements of the tensor.
+
+
+       <B>ts0={float}</B>
+              The  number  of seconds to shift all of the data relative to the
+              origin time.  The data are shifted within mtinv and not windowed
+              again by sacdata2inv saving much time.
+
+
+
+</PRE>
+<H2>OPTIONAL PARAMETERS</H2><PRE>
+       <B>[no]verbose</B>
+              Verbosy  output for debugging is <I>verbose</I> and for no verbosy out-
+              put is <I>verbose</I> [optional, default noverbose].
+
+
+       <B>[no]dumpsac</B>
+              Write out "Dump" the processed  data  as  SAC  formatted  binary
+              files and synthetics [optional, default nodumpsac].
+
+
+       <B>outputpath=[./plotmech]</B>
+              This is the path for the plot mechanism files GMT C-shell script
+              and individual solution files for plotting the  mechanism  solu-
+              tion version origin time shift and depth with the mechanism size
+              scaled to the variance reduction and modulated  by  the  percent
+              double couple.  Default is ./plotmech/
+
+
+       <B>[no]fwd</B>
+              Use the EV line in the parameter input file for a forward caclu-
+              ation of the pure double couple focal mechanism and moment.  All
+              the  plots  and  output  files  are  made  as  in the inversion.
+              Default is inversion mode.  Forward calculation is off.
+
+
+       <B>[no]gmtmap</B>
+              Make a GMT C-shell script that plots a map with  the  event  and
+              station  locations.  The solution is also shown.  mtinv needs to
+              be run with the current best origin time shift that results with
+              the  best  fitting depth.  Topography can be shown in the map by
+              setting some C-shell environment variables.  Defautl off.
+
+              setenv MTINV_GMT_GRID_FILE /my/topography.grid
+
+              setenv MTINV_GMT_INT_FILE /my/topography.shade
+
+              setenv MTINV_GMT_CPT_FILE /my/togography.colorpal
+
+
+       <B>fixz=</B>  Do an inversion with the depth fixed.  Program checks for  valid
+              depth.  Default off.
+
+
+       <B>[no]test_mode</B>
+              A test mode that forces deviatoric solution.  Default off.
+
+
+       <B>[no]norm</B>
+              Distance  normalization.  Normalizes  the  data  and synthetics.
+              Defautl is off.
+
+
+       <B>[no]shift</B>
+              Shift the data by the maximum of the cross  correlation  between
+              data  and  synthetics  computed  from the best fitting solution.
+              Default is off.
+
+
+       <B>ctol=</B>  When the shift option is on, this  is  the  minimum  correlation
+              coefficient  allowed  to  shift the data.  If the correlation is
+              larger than ctol=(0.0 to 1.0) then the data is  shifted  to  the
+              lag time for this maximum correlation.  Default off.
+
+       <B>[no]WgtCovarResid</B>
+              Weight  the  covariance matrix by the variance of the residuals.
+              Otherwise weight by the variance  of  the  data.   Default  off,
+              always weight variance by the data.
+
+
+
+
+</PRE>
+<H2>PARAMETER FILE FORMAT</H2><PRE>
+       <B>same</B> <B>format</B> <B>as</B> <B>par</B> <B>file</B> <B>for</B> <B>GLIB2INV(1)</B> <B>and</B> <B>SACDATA2INV(1)</B>
+
+
+       <B>#</B>      A  '#' in the first column signifies that the following is a non
+              printing comment
+
+
+       <B>CM</B>     A 'CM ' in columns 1-3 marks the beginning of a  comment,  typi-
+              cally the region, area, city and country name for reference pur-
+              poses only.
+
+
+       <B>OT</B>     A 'OT ' in columns 1-3 is followed by the earthquake origin time
+              string   in  year/month/day,hour:minute:seconds  format,  (e.g.,
+              2005/06/12,15:41:46.000 ).  Origin time is required for  setting
+              the  origin  time  in  the  synthetics and shifting the observed
+              seismograms in time to improve the fit the synthetics  and  per-
+              cent double couple component.
+
+
+       <B>EV</B>     A  'EV ' in columns 1-3 is followed by six free formatted float-
+              ing point  values:   strike,  dip,  rake,  Mw,  event_longitude,
+              event_latitude,   and  event_depth.   Only  event_longitude  and
+              event_latitude need to be set for the correct calculation of the
+              source and receiver azimuth and distance.  Should be the same as
+              the <I>evla=</I> and <I>evlo=</I> values used to calculate the  Green's  func-
+              tion  library using "mkgrnlib".  Other values can be set to zero
+              and are only used to forward  calculate  synthetic  ground  dis-
+              placements when the dump option is set (nodumpsac).
+
+
+       All  other  lines are for station and synthetic data processing parame-
+       ters.  There are 18 columns in the following order:
+
+              <B>sta,</B> <B>net,</B> <B>model,</B> <B>np,</B> <B>pas,</B> <B>lf,</B> <B>hf,</B> <B>nt,</B> <B>dt,</B> <B>tr,</B> <B>tt,</B> <B>grdmo,</B> <B>mulfac,</B>
+              <B>used,</B> <B>ts,</B> <B>Zmulfac,</B> <B>Rmulfac,</B> <B>Tmulfac.</B>
+
+
+              <B>sta=</B> station code (see stadb file).
+
+              <B>net=</B> network code (see stadb file).
+
+              <B>model=</B> velocity model name (without .mod extension)
+
+              <B>np=</B> number of poles (0,1,2,3,4,5,...) for  Butterworth  bandpass
+              filter
+
+              <B>pas=</B> number of passes (1 or 2) for Butterworth bandpass filter
+
+              <B>lf=</B> low frequency corner in Hz for Butterworth bandpass filter
+
+              <B>hf=</B> high frequency corner in Hz for Butterworth bandpass filter
+
+              <B>nt=</B> number of points (in power of 2)
+
+              <B>dt=</B> sampling rate in sec/sample
+
+              <B>tr=</B>  rise time or duration of ramp in trapezoid function in sec-
+              onds
+
+              <B>tt=</B> duration of boxcar portion of trapezoid function in  seconds
+              (tt=0 then triangle function of duration 2*tr)
+
+              <B>grdmo=</B>  Ground motion type is either 'd' for displacement or 'v'
+              for velocity (no default)
+
+              <B>mulfac=</B> Multiplcation factor applied to all components for  this
+              station.  Useful  for applying gain corrections easily.  Default
+              is 1.
+
+              <B>used=</B> Use this station for inversion 'y' or just make a  preduc-
+              tion 'n'
+
+              <B>ts=</B> Time shift for all components in seconds.  Negative is back-
+              ward time shift in time and positive shifts are forward shift in
+              time.  Default is 0;
+
+              <B>Zmulfac=</B> Vertical component multplication factor
+
+              <B>Rmulfac=</B> Radial component multplication factor
+
+              <B>Tmulfac=</B> Transverse component multplication factor
+
+
+
+</PRE>
+<H2>EXAMPLE PARAMETER FILE (glib2inv.par)</H2><PRE>
+       #### Region Comment ####
+       CM Anza, California
+       #### Origin Time ####
+       #   year/mo/da,hr:mn:sec
+       OT 2005/06/12,15:41:46.00
+       #### Forward calculations ####
+       #    str dip  rak  Mw    evlo      evla     Z
+       EV   41  87    29  5.1  -116.573  33.529    14
+       #
+       BAR   CI   wus   3  2   0.03 0.10 256 0.25 0.0 0.0  d    1.0    y   0.0
+       1.0   1.0     1.0
+       GSC  CI  wus   3  2   0.02 0.08 256 0.4  0.0 0.0  d    1.0     y    0.0
+       1.0   1.0     1.0
+
+
+
+</PRE>
+<H2>Example 1. C-Shell Script With solution at origin time at 2005/06/12,15:41:46</H2><PRE>
+       #!/bin/csh
+       glib2inv par=glib2inv.par noverbose
+       sacdata2inv   par=glib2inv.par   path=./IRIS  respdir=./Resp  noverbose
+       nodumpsac
+       foreach ts0 ( -2 -1 0 +1 +2 )
+       mtinv ts0=${ts0} par=glib2inv.par mtdegfree=5
+       end
+
+
+
+</PRE>
+<H2>SEE ALSO</H2><PRE>
+       <B>glib2inv(1)</B>,  <B>grnlib2sac(1)</B>,  <B>mkgrnlib(1)</B>,  <B>sacdata2inv(1)</B>,  <B>rdseed(1)</B>,
+       <I>sac.h</I> <I>mt.h</I>
+
+
+
+MTINV version 2.0                 20 Feb 2009                         <B>MTINV(1)</B>
+</PRE>
+<HR>
+<ADDRESS>
+"<a href='/cgi-bin/man.cgi'>get my <b>man!</b></a>"  .. in association with 
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+and <a href="http://www.corz.org/osx/">cor</a>
+</ADDRESS></font>
+</BODY>
+</HTML>

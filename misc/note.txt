@@ -1,0 +1,4 @@
+Thu Nov  7 23:06:32 EST 2013
+G. Ichinose
+
+rdseed is no longer distributed with mtinv.  Please see iris for download and install instructions.

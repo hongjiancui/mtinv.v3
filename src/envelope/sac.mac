@@ -1,0 +1,8 @@
+window x 0.1 0.5 y 0.1 0.9
+bd x
+qdp off
+read sine.sac.env env.sac
+color on inc on
+p2
+pause
+quit

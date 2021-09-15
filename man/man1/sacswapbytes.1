@@ -1,0 +1,26 @@
+.TH SACSWAPBYTES 1 "20 Feb 2009" "MTINV version 2.0" "MTINV Toolkit V2.0"
+
+.SH NAME
+sacswapbytes
+
+.SH SYNOPSIS
+sacswapbytes {sac binary files}
+
+.SH DESCRIPTION
+Motorola and IBM processors (CPU's) were designed to read and write bits from left to right like humans 
+but Intel decided to do it from right to left (backwards).  This is called computer Endianess... big-endian (Motorola/IBM)
+and little-endian (Intel).    
+Therefore files written from one type of processor/computer
+will need to have its byte-order byte-swapped in order for it to be readable on another type of computer.  This includes
+Seismic Analysis Code (SAC) binary formatted files.
+This program performs an intelligent assessment of the file type and converts if necessary.  NOTE... if you created sac files
+using rdseed then those sac files inherit the native byte order of that computer.  SACSWAPBYTES is only necessary if those
+files were transferred to another type of computer with different architecture.   Also note that SAC2000 performs this function
+automatically but beware that upon writing the files over using SAC2000 it inherits the native byte-order.  
+
+.SH REQUIRED PARAMETERS
+none
+
+.SH "SEE ALSO"
+.IR sacdata2inv (1),
+.IR knet2sac (1)

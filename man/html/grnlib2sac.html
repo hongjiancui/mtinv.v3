@@ -1,0 +1,140 @@
+<HTML>
+<BODY>
+<font size=2>
+
+<H2>NAME</H2><PRE>
+       grnlib2sac
+
+
+
+</PRE>
+<H2>SYNOPSIS</H2><PRE>
+       grnlib2sac glib= z= [no]dumpgn [no]verbose tr= tt= [no]noise type=
+
+
+       <B>if</B> <B>noise</B>
+              nMw= seed=
+
+
+       <B>if</B> <B>type=0</B>
+              Mxx= Myy= Mzz= Mxy Mxz= Myz= Mo=
+
+
+       <B>if</B> <B>type=1</B>
+              str= dip= rak= Mw=
+
+
+       <B>if</B> <B>type=2</B>
+              str= dip= rak= Mw= Piso=
+
+
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
+       Computes  the  ground  displacements  (z,r,t)  given one type of source
+       input, type=0 is the tensor input, type=1 is the  focal  mechanism  and
+       seismic moment, or type=2 which seperates the moment into isotropic and
+       double couple.  The synthetic  seismograms  can  be  convolved  with  a
+       source  time  function  (ramp  rise time and boxcar time lengths).  The
+       program reads the Green's function library (as a function of depth) for
+       a  single  source  station  pair.   The output are SAC formatted binary
+       files.  Use sac2xy.c to get the raw ASCII data.  The program  is  ideal
+       for  when quick forward calculations are needed to check recorded data.
+       Version 2 include a feature that adds noise relative to a moment magni-
+       tude.
+
+
+
+</PRE>
+<H2>REQUIRED PARAMETERS</H2><PRE>
+       <B>glib={string}</B>
+              The file name of the Green's function library ".glib" file.
+
+
+       <B>z={float}</B>
+              The source depth.  Must be a depth computed in the Green's func-
+              tion library ".glib" file.  See par file from mkgrnlib
+
+
+
+</PRE>
+<H2>OPTIONAL PARAMETERS</H2><PRE>
+       <B>[no]dumpgrn</B>
+              write out only Green's functions for z= depth.
+
+
+       <B>[no]verbose</B>
+              verbosy output for diagnosis
+
+
+       <B>tr={float}</B>
+              The ramp rise time in seconds.  If tr=0 and tt&gt;0 then the source
+              time function is a boxcar.
+
+
+       <B>tt={float}</B>
+              The  boxcar  rise  time  in  seconds.  If tt=0 and tr&gt;0 then the
+              source time function is a triangle.
+
+
+       <B>[no]noise</B>
+              add white Gaussian noise
+
+
+       <B>nMw={float}</B>
+              If noise then enter the level of the noise in units  of  Mw  for
+              freq band of interest
+
+
+       <B>seed={integer}</B>
+              If noise then enter the random seed for noise
+
+
+       <B>type={integer}</B>
+              Source  Input Mode Type where type=0 Input Moment Tensor, type=1
+              Input Pure Deviatoric Source (Strike/Dip/Rake) and type=2  Input
+              Pure Deviatoric source plus isotropic component
+
+
+       <B>If</B>  <B>type=0</B>  <B>Mxx={float}</B> <B>Myy={float}</B> <B>Mzz={float}</B> <B>Mxy={float}</B> <B>Mxz={float}</B>
+       <B>Myz={float}</B>
+              Normalized Moment Tensor Elements
+
+
+       <B>If</B> <B>type=0</B> <B>Mo={float}</B>
+              Total Seismic Moment in Dyne Cm.
+
+
+       <B>If</B> <B>type=1</B> <B>str={float}</B> <B>dip={float}</B> <B>rake={float}</B>
+              Fault Strike, dip, and rake in degrees.  Aki's convention.
+
+
+       <B>If</B> <B>type=1</B> <B>Mw={float}</B>
+              Scalar seismic moment magnitude.
+
+
+       <B>If</B> <B>type=2</B> <B>str={float}</B> <B>dip={float}</B> <B>rake={float}</B>
+              Fault Strike, dip, and rake in degrees.  Aki's convention.
+
+
+       <B>If</B> <B>type=2</B> <B>Mw=</B> <B>Piso=</B>
+              Total Moment Magnitude and The percent of the total moment allo-
+
+
+
+</PRE>
+<H2>SEE ALSO</H2><PRE>
+       <B>mkgrnlib(1)</B>, <B>grnlib2sac(1)</B>, <B>sacdata2inv(1)</B>, <B>mtinv(1)</B> <B>rdseed(1)</B>
+
+
+
+MTINV Version 2.0                 20 Feb 2009                    <B>GRNLIB2SAC(1)</B>
+</PRE>
+<HR>
+<ADDRESS>
+"<a href='/cgi-bin/man.cgi'>get my <b>man!</b></a>"  .. in association with 
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+and <a href="http://www.corz.org/osx/">cor</a>
+</ADDRESS></font>
+</BODY>
+</HTML>

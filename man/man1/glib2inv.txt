@@ -1,0 +1,153 @@
+GLIB2INV(1)                    MTINV Toolkit V2                    GLIB2INV(1)
+
+
+
+NNAAMMEE
+       glib2inv
+
+
+SSYYNNOOPPSSIISS
+       glib2inv par= [no]verbose [no]dumpsac [no]dumpgrn [no]special
+
+
+DDEESSCCRRIIPPTTIIOONN
+       Reads  the Green's function library (as a function of depth) for a sin-
+       gle source station pair and process  the  Green's  functions  (interpo-
+       late/decimate and bandpass filter) for moment tensor inversion.
+
+
+RREEQQUUIIRREEDD PPAARRAAMMEETTEERRSS
+       ppaarr=={{ssttrriinngg}}
+              The  file  name  of the parameter file.  See format of this file
+              below (PARAMETER FILE FORMAT).
+
+
+OOPPTTIIOONNAALL PPAARRAAMMEETTEERRSS
+       [[nnoo]]vveerrbboossee
+              Verbosy output for debugging is _v_e_r_b_o_s_e and for no verbosy  out-
+              put is _n_o_v_e_r_b_o_s_e [optional, default verbose off].
+
+
+       [[nnoo]]dduummppggrrnn
+              Write  out  "Dump" the Green's functions as SAC formatted binary
+              files [optional, default nodumpgrn].
+
+
+       [[nnoo]]dduummppssaacc
+              Write out "Dump" the Green's functions as SAC  formatted  binary
+              files  [optional,  default  nodumpsac].   The  focal  mechanism,
+              depth, and moment is applied from the input  parameter  file  EV
+              line (see format below).
+
+
+PPAARRAAMMEETTEERR FFIILLEE FFOORRMMAATT
+       ##      A  '#' in the first column signifies that the following is a non
+              printing comment
+
+
+       CCMM     A 'CM ' in columns 1-3 marks the beginning of a  comment,  typi-
+              cally the region, area, city and country name for reference pur-
+              poses only.
+
+
+       OOTT     A 'OT ' in columns 1-3 is followed by the earthquake origin time
+              string   in  year/month/day,hour:minute:seconds  format,  (e.g.,
+              2005/06/12,15:41:46.000 ).  Origin time is required for  setting
+              the  origin  time  in  the  synthetics and shifting the observed
+              seismograms in time to improve the fit the synthetics  and  per-
+              cent double couple component.
+
+
+       EEVV     A  'EV ' in columns 1-3 is followed by six free formatted float-
+              ing point  values:   strike,  dip,  rake,  Mw,  event_longitude,
+              event_latitude,   and  event_depth.   Only  event_longitude  and
+              event_latitude need to be set for the correct calculation of the
+              source and receiver azimuth and distance.  Should be the same as
+              the _e_v_l_a_= and _e_v_l_o_= values used to calculate the  Green's  func-
+              tion  library using "mkgrnlib".  Other values can be set to zero
+              and are only used to forward  calculate  synthetic  ground  dis-
+              placements when the dump option is set (dumpsac).
+
+
+       All  other  lines are for station and synthetic data processing parame-
+       ters.  There are 18 columns in the following order:
+
+              ssttaa,, nneett,, mmooddeell,, nnpp,, ppaass,, llff,, hhff,, nntt,, ddtt,, ttrr,, tttt,, ggrrddmmoo,, mmuullffaacc,,
+              uusseedd,, ttss,, ZZmmuullffaacc,, RRmmuullffaacc,, TTmmuullffaacc..
+
+              ssttaa== station code (see stadb file).
+
+              nneett== network code (see stadb file).
+
+              mmooddeell== velocity model name (without .mod extension)
+
+              nnpp== number of poles (0,1,2,3,4,5,...) for  Butterworth  bandpass
+              filter
+
+              ppaass== number of passes (1 or 2) for Butterworth bandpass filter
+
+              llff== low frequency corner in Hz for Butterworth bandpass filter
+
+              hhff== high frequency corner in Hz for Butterworth bandpass filter
+
+              nntt== number of points (in power of 2)
+
+              ddtt== sampling rate in sec/sample
+
+              ttrr==  rise time or duration of ramp in trapezoid function in sec-
+              onds
+
+              tttt== duration of boxcar portion of trapezoid function in  seconds
+              (tt=0 then triangle function of duration 2*tr)
+
+              ggrrddmmoo==  Ground motion type is either 'd' for displacement or 'v'
+              for velocity (no default)
+
+              mmuullffaacc== Multiplcation factor applied to all components for  this
+              station.  Useful  for applying gain corrections easily.  Default
+              is 1.
+
+              uusseedd== Use this station for inversion 'y' or just make a  preduc-
+              tion 'n'
+
+              ttss== Time shift for all components in seconds.  Negative is back-
+              ward time shift in time and positive shifts are forward shift in
+              time.  Default is 0;
+
+              ZZmmuullffaacc== Vertical component multplication factor
+
+              RRmmuullffaacc== Radial component multplication factor
+
+              TTmmuullffaacc== Transverse component multplication factor
+
+
+
+
+EEXXAAMMPPLLEE PPAARRAAMMEETTEERR FFIILLEE ((gglliibb22iinnvv..ppaarr))
+       #### Region Comment ####
+       CM Anza, California
+       #### Origin Time ####
+       #   year/mo/da,hr:mn:sec
+       OT 2005/06/12,15:41:46.00
+       #### Forward calculations ####
+       #    str dip  rak  Mw    evlo      evla     Z
+       EV   41  87    29  5.1  -116.573  33.529    14
+       #
+       #sta  net  model  np pas  lf   hf  nt  dt   tr  tt grdmo mulfac used ts
+       Zmulfac Rmulfac Tmulfac
+       BAR  CI  wus   3  2   0.03 0.10 256 0.25 0.0 0.0  d    1.0     y    0.0
+       1.0   1.0     1.0
+       GSC   CI   wus   3  2   0.02 0.08 256 0.4  0.0 0.0  d    1.0    y   0.0
+       1.0   1.0     1.0
+
+
+EExxaammppllee
+       glib2inv par=glib2inv.par noverbose
+
+
+SSEEEE AALLSSOO
+       _m_k_g_r_n_l_i_b(1), _g_r_n_l_i_b_2_s_a_c(1), _s_a_c_d_a_t_a_2_i_n_v(1), _m_t_i_n_v(1) _r_d_s_e_e_d(1)
+
+
+
+MTINV Version 2.0                 20 Feb 2009                      GLIB2INV(1)
